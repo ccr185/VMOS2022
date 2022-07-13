@@ -1,0 +1,79 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: infra
+  # namespace: myns
+  labels:
+    app: VariaMosInfra
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: vmos
+  template:
+    metadata:
+      labels:
+        app: vmos
+    spec:
+      containers:
+        - image: docker.io/up1ps/vmos:latest
+          name: vmos
+          ports:
+            - containerPort: 3000
+          imagePullPolicy: Never
+        - image: docker.io/up1ps/vlang:latest
+          name: variamos-ms-languages
+          ports:
+            - containerPort: 4000
+          imagePullPolicy: Never
+        - image: docker.io/up1ps/vrest:latest
+          name: variamos-ms-restrictions
+          ports:
+            - containerPort: 4003
+          imagePullPolicy: Never
+        - image: postgres
+          name: postgres
+      # lifecycle:
+      #   postStart:
+      #     exec:
+      #       command: ["/bin/bash", "-c", "sleep 200 && PGPASSWORD=$POSTGRES_PASSWORD psql /local/share/pgdata/VariaMosDB.sql -U $POSTGRES_USER"]
+          # lifecycle:
+          #   postStart:
+          #     exec:
+          #       command: [ "bin/bash", "-c", "sleep 200 && PGPASSWORD=$POSTGRES_PASSWORD psql -U $POSTGRES_USER -c 'create database \"adminpg\";' -vvv && echo STEP 1 && PGPASSWORD=$POSTGRES_PASSWORD psql /variamosdb.sql -U $POSTGRES_USER " ]
+          ports:
+            - containerPort: 5432
+          env:
+            - name: POSTGRES_PASSWORD
+              value: "D6w9yRIWw7r92opvkVzp"
+            - name: POSTGRES_USER
+              value: "adminpg"
+            - name: POSTGRES_DB
+              value: "VariamosDB"
+          # volumeMounts:
+          #   - mountPath: /variamosdb.sql
+          #    name: variamosdb
+      restartPolicy: Always
+      # volumes:
+      #   - name: variamosdb
+      #     configMap:
+      #      name: variamosdb.sql
+status: {}
+---
+kind: Service
+apiVersion: v1
+metadata:
+  name: variamos-service
+spec:
+  type: NodePort
+  selector:
+    app: vmos
+  ports:
+  - name: db
+    port: 5432
+    targetPort: 5432
+    nodePort: 30001
+  - name: vmos
+    port: 3000
+    targetPort: 3000
+    nodePort: 32222

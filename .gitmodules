@@ -1,0 +1,11 @@
+[submodule "VariaMosPLE"]
+	path = VariaMosPLE
+	url = git@pro:ccr185/VariaMosPLE.git
+
+[submodule "variamos_ms_languages"]
+	path = variamos_ms_languages
+	url = git@pro:ccr185/variamos_ms_languages.git
+
+[submodule "variamos_ms_restrictions"]
+	path = variamos_ms_restrictions
+	url = git@pro:ccr185/variamos_ms_restrictions.git
