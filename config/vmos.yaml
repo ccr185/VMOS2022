@@ -1,0 +1,34 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: vmos
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: vmos
+  template:
+    metadata:
+      labels:
+        app: vmos
+    spec:
+      containers:
+      - name: vmos
+        image: docker.io/up1ps/vmos:latest
+        ports:
+        - containerPort: 3000
+        imagePullPolicy: Never
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: vmos
+spec:
+  type: NodePort
+  ports:
+  - port: 3000
+    targetPort: 3000
+    name: vmos
+    nodePort: 30001
+  selector:
+    app: vmos

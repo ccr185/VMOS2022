@@ -1,0 +1,35 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: vmos-ingress
+  annotations:
+    nginx.ingress.kubernetes.io/ssl-redirect: "false"
+    nginx.ingress.kubernetes.io/use-regex: "true"
+    # nginx.ingress.kubernetes.io/rewrite-target: /$2
+spec:
+  ingressClassName: nginx
+  rules:
+  - http:
+      paths:
+      - path: /
+        pathType: Exact
+        backend:
+          service:
+            name: vmos
+            port:
+              number: 3000
+      - path: /languages/*
+        pathType: Prefix
+        backend:
+          service:
+            name: vlang
+            port:
+              number: 4000
+      - path: /restriction/*
+        pathType: Prefix
+        backend:
+          service:
+            name: vrest
+            port:
+              number: 4003
+              number: 80

@@ -1,0 +1,39 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: db
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: db
+  template:
+    metadata:
+      labels:
+        app: db
+    spec:
+      containers:
+      - image: postgres
+        name: postgres
+        ports:
+        - containerPort: 5432
+        env:
+        - name: POSTGRES_PASSWORD
+          value: "D6w9yRIWw7r92opvkVzp"
+        - name: POSTGRES_USER
+          value: "adminpg"
+        - name: POSTGRES_DB
+          value: "VariamosDB"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: db
+spec:
+  type: NodePort
+  ports:
+  - port: 5432
+    targetPort: 5432
+    nodePort: 30004
+  selector:
+    app: db

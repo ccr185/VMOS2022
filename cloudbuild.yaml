@@ -77,3 +77,44 @@ spec:
     port: 3000
     targetPort: 3000
     nodePort: 32222
+  - name: vlang
+    port: 4000
+    targetPort: 4000
+    nodePort: 30444
+  - name: vrest
+    port: 4003
+    targetPort: 4003
+    nodePort: 30443
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: vmos-ingress
+  annotations:
+    ingress.kubernetes.io/ssl-redirect: "false"
+spec:
+  ingressClassName: nginx
+  rules:
+    - http:
+        paths:
+          - path: /
+            pathType: Exact
+            backend:
+              service:
+                name: variamos-service
+                port:
+                  number: 3000
+          - path: /languages/*
+            pathType: Prefix
+            backend:
+              service:
+                name: variamos-service
+                port:
+                  number: 4000
+          - path: /restriction/*
+            pathType: Prefix
+            backend:
+              service:
+                name: variamos-service
+                port:
+                  number: 4003

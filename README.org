@@ -1,0 +1,26 @@
+#+title: VariaMos Local Infrastructure
+
+* Introduction
+This repository contains the entire VariaMos infrastructure using git submodules to centralize the code of the application.
+In addition, this repository contains a ~.yaml~ file that allows one to build and test the entire infrastructure locally using
+~minikube~, hence allowing one to work and modify the application without touching the production version.
+
+On a further note, we include a *Makefile* with a series of commands that allow one to quickly rebuild and redeploy the infrastructure
+without needing to memorize the kubernetes commands. It does, however, require that one has a complete installation of Docker + Minikube
+available on the command line. You must also modify the ~WORKDIR~ variable to wherever the project is setup to be so that the
+scripts can find the local workind dir (though for now they use relative paths, so if the project structure remains the same, it should work as is).
+* Make Commands
+** ~make all~ or just ~make~
+This command will rebuild the docker images for all three microservices and then proceed to mount them into minikube's local registry.
+** ~make rebuild[_(ui|lang|rest)]~
+This command will rebuild the docker images for all (or the selected microservice by adding the postfix to the command).
+** ~make mount[_(ui|lang|rest)]~
+This command will mound the images into minikube's local registry (or the selected ...).
+** ~make bm_(ui|lang|rest)~
+This command will rebuild and remount the selected image into the local registry.
+** ~make run~
+This command will apply the deployment file to the cluster and will update the images that have changed.
+** ~make stark~
+This command will start the minikube cluster with the necessary options
+** ~make stopk~
+This command will stop the minikube cluster

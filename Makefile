@@ -13,17 +13,18 @@ VARIAMOS_LANG_TAG=$(PREFIX)vlang:$(VERSION)
 VARIAMOS_REST=variamos_ms_restrictions
 VARIAMOS_REST_TAG=$(PREFIX)vrest:$(VERSION)
 DEPLOYMENT_NAME=infra
+CONFIG_FILES := $(shell ls ./config)
 
 
-.PHONY: all rebuild rebuild_ui rebuild_lang rebuild_rest mount mount_ui mount_lang mount_rest startk stopk clean bm_ui bm_lang bm_rest
+.PHONY: all rebuild rebuild_ui rebuild_lang rebuild_rest mount mount_ui mount_lang mount_rest startk stopk clean bm_ui bm_lang bm_rest clean clean_ui clean_lang clean_rest
 
 all: rebuild mount
 
-bm_ui: rebuid_ui mount_ui
+bm_ui: rebuild_ui mount_ui
 
-bm_lang: rebuid_lang mount_lang
+bm_lang: rebuild_lang mount_lang
 
-bm_rest: rebuid_rest mount_rest
+bm_rest: rebuild_rest mount_rest
 
 rebuild: rebuild_ui rebuild_lang rebuild_rest
 
@@ -48,10 +49,28 @@ mount_rest:
 	minikube image load $(VARIAMOS_REST_TAG)
 
 run:
-	minikube kubectl -- apply -f cloudbuild.yaml
+	$(foreach conf,$(CONFIG_FILES), minikube kubectl -- apply -f config/$(conf);)
 
 startk:
 	minikube start --hyperv-virtual-switch "My Virtual Switch" --v=8 --extra-config "apiserver.cors-allowed-origins=["http://\*"]"
+
+restart: clean all
+
+clean:
+	minikube kubectl -- delete deployment vmos db vlang vrest && sleep 2
+	minikube image rm $(VARIAMOS_UI_TAG) $(VARIAMOS_LANG_TAG) $(VARIAMOS_LANG_TAG)
+
+clean_ui:
+	minikube kubectl -- delete deployment vmos && sleep 2
+	minikube image rm $(VARIAMOS_UI_TAG)
+
+clean_lang:
+	minikube kubectl -- delete deployment vlang && sleep 2
+	minikube image rm $(VARIAMOS_LANG_TAG)
+
+clean_rest:
+	minikube kubectl -- delete deployment vrest && sleep 2
+	minikube image rm $(VARIAMOS_REST_TAG)
 
 stopk:
 	minikube stop
