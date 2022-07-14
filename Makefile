@@ -14,9 +14,10 @@ VARIAMOS_REST=variamos_ms_restrictions
 VARIAMOS_REST_TAG=$(PREFIX)vrest:$(VERSION)
 DEPLOYMENT_NAME=infra
 CONFIG_FILES := $(shell ls ./config)
+RUN_ARGS := $(wordlist 2,$(words $(MAKECMDGOALS)),$(MAKECMDGOALS))
+$(eval $(RUN_ARGS):;@:)
 
-
-.PHONY: all rebuild rebuild_ui rebuild_lang rebuild_rest mount mount_ui mount_lang mount_rest startk stopk clean bm_ui bm_lang bm_rest clean clean_ui clean_lang clean_rest
+.PHONY: all rebuild rebuild_ui rebuild_lang rebuild_rest mount mount_ui mount_lang mount_rest startk stopk clean bm_ui bm_lang bm_rest clean clean_ui clean_lang clean_rest restart
 
 all: rebuild mount
 
@@ -54,10 +55,33 @@ run:
 startk:
 	minikube start --hyperv-virtual-switch "My Virtual Switch" --v=8 --extra-config "apiserver.cors-allowed-origins=["http://\*"]"
 
-restart: clean all
+restart_all: clean all
+
+restart:
+ifneq (, $(RUN_ARGS))
+restart: restart_svc
+else
+restart:
+	@echo "Restarts need an argument (ui|lang|rest) or call make restart_all. Stopping."
+endif
+
+restart_svc: clean_$(RUN_ARGS) bm_$(RUN_ARGS)
+	test $(RUN_ARGS)
+ifeq (ui,$(firstword $(RUN_ARGS)))
+	minikube kubectl -- apply -f config/vmos.yaml
+else ifneq ('',$(RUN_ARGS))
+	minikube kubectl -- apply -f config/v$(RUN_ARGS).yaml
+else
+	@echo "OOPS"
+endif
+
 
 clean:
 	minikube kubectl -- delete deployment vmos db vlang vrest && sleep 2
+	minikube image rm $(VARIAMOS_UI_TAG) $(VARIAMOS_LANG_TAG) $(VARIAMOS_LANG_TAG)
+
+clean_sparedb:
+	minikube kubectl -- delete deployment vmos vlang vrest && sleep 2
 	minikube image rm $(VARIAMOS_UI_TAG) $(VARIAMOS_LANG_TAG) $(VARIAMOS_LANG_TAG)
 
 clean_ui:
