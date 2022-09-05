@@ -53,7 +53,7 @@ run:
 	$(foreach conf,$(CONFIG_FILES), minikube kubectl -- apply -f config/$(conf);)
 
 startk:
-	minikube start --hyperv-virtual-switch "My Virtual Switch" --v=8 --extra-config "apiserver.cors-allowed-origins=["http://\*"]"
+	minikube --hyperv-virtual-switch "My Virtual Switch" --v=8 --extra-config apiserver.cors-allowed-origins=["http://*"] start
 
 restart_all: clean all
 

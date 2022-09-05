@@ -24,3 +24,5 @@ This command will apply the deployment file to the cluster and will update the i
 This command will start the minikube cluster with the necessary options
 ** ~make stopk~
 This command will stop the minikube cluster
+** ~make restart_all~ and ~make restart (ui|lang|rest)~
+This command will restart either all services or the specific service by completely cleaning the docker images cache and reloading the new configuration for the given service.
