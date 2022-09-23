@@ -17,6 +17,9 @@ spec:
         name: postgres
         ports:
         - containerPort: 5432
+        volumeMounts:
+        - mountPath: /var/lib/postgresql/data
+          name: postgres-pv-claim
         env:
         - name: POSTGRES_PASSWORD
           value: "D6w9yRIWw7r92opvkVzp"
@@ -24,6 +27,10 @@ spec:
           value: "adminpg"
         - name: POSTGRES_DB
           value: "VariamosDB"
+      volumes:
+      - name: postgres-pv-claim
+        persistentVolumeClaim:
+          claimName: postgres-pv-claim
 ---
 apiVersion: v1
 kind: Service
